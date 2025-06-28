@@ -1,7 +1,44 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BookOpen, User, ArrowRight, CheckCircle, XCircle, Award, RotateCw, Volume2, VolumeX, PlayCircle } from 'lucide-react';
 
-// --- STORY DATA (Simplified Language & All 10 Stories) ---
+// --- Icon Components (as SVGs) ---
+// Using inline SVGs makes the app self-contained and load faster.
+const BookOpen = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>;
+const User = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>;
+const ArrowRight = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>;
+const CheckCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>;
+const XCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>;
+const Award = () => <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 17 17 23 15.79 13.88"/></svg>;
+const RotateCw = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>;
+const Volume2 = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>;
+const VolumeX = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9"x2="23" y2="15"/></svg>;
+const PlayCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>;
+const StopCircle = () => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><rect x="9" y="9" width="6" height="6"/></svg>;
+
+// --- Story Icons ---
+const StoryIcon = ({ id }) => {
+    const icons = {
+        1: <path d="M19.05 4.91A10 10 0 1 1 4.95 19.09" stroke="#fef08a" />,
+        2: <path d="M12 14c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5z m-2-2a2 2 0 1 0 4 0" fill="#f97316"/>,
+        3: <path d="M12 2L2 7l10 5 10-5-10-5z m0 17.5L2 14v-4.5l10 5 10-5V14l-10 5.5z" fill="#f472b6"/>,
+        4: <path d="M16 9v2h-4V9h4zM8 9v2H4V9h4zm4-4h4v2h-4V5zM4 5h4v2H4V5zm12 8v2h-4v-2h4zM8 13v2H4v-2h4z" fill="#60a5fa"/>,
+        5: <path d="M12 2l-2 6-6 2 6 2 2 6 2-6 6-2-6-2-2-6z" stroke="#eab308" />,
+        6: <path d="M22 12c0 5.523-4.477 10-10 10S2 17.523 2 12 6.477 2 12 2s10 4.477 10 10z" fill="#22c55e" />,
+        7: <path d="M21.16 12.33a2.3 2.3 0 0 0-3.32 0l-7.5 7.5a2.3 2.3 0 0 1-3.32-3.32l7.5-7.5a2.3 2.3 0 0 0 0-3.32 2.3 2.3 0 0 0-3.32 0l-7.5 7.5" stroke="#ef4444" />,
+        8: <path d="M2.9 13.1c-.2.5.1 1.1.6 1.3l2.6.9c.5.2 1.1-.1 1.3-.6l3.4-9.3c.2-.5-.1-1.1-.6-1.3l-2.6-.9c-.5-.2-1.1.1-1.3.6l-3.4 9.3z" stroke="#2dd4bf" />,
+        9: <path d="M16.5 6.5c2.28 2.28 2.28 6 0 8.28l-4.14 4.14c-2.28 2.28-6 2.28-8.28 0s-2.28-6 0-8.28L8.22 6.5c1.14-1.14 3-1.14 4.14 0l.1.1" stroke="#a855f7" />,
+        10: <path d="M20.5 10H19V7a2 2 0 0 0-2-2h-3V3.5a2.5 2.5 0 0 0-5 0V5H6a2 2 0 0 0-2 2v3H2.5a1.5 1.5 0 0 0 0 3H4v3a2 2 0 0 0 2 2h3v1.5a2.5 2.5 0 0 0 5 0V19h3a2 2 0 0 0 2-2v-3h1.5a1.5 1.5 0 0 0 0-3z" fill="#78716c" />,
+    };
+
+    return (
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            {icons[id] || icons[7]}
+        </svg>
+    );
+};
+
+
+// --- STORY DATA ---
+// All 10 stories with simplified language and MCQ questions.
 const allStories = [
     {
         id: 1,
@@ -193,7 +230,6 @@ const allStories = [
             { question: "What was Meena's special secret?", options: ["She could fly", "She could talk to butterflies", "She could become invisible"], answer: "She could talk to butterflies" },
             { question: "What did the butterflies' wings make?", options: ["Music", "Wind", "Tiny sounds that were words"], answer: "Tiny sounds that were words" },
             { question: "The butterflies told her stories of faraway...?", options: ["Cities and roads", "Flowers and mountains", "Rivers and lakes"], answer: "Flowers and mountains" },
-            // FIX: Corrected typo 'question:t:' to 'question:'
             { question: "What color was the butterfly that landed on her hand?", options: ["Yellow", "Red", "Blue"], answer: "Blue" },
             { question: "What did the blue butterfly tell her?", options: ["The rose plant was hungry", "The rose plant was thirsty", "The rose plant was sleepy"], answer: "The rose plant was thirsty" },
             { question: "What did Meena get to help the plant?", options: ["A spade", "A watering can", "Some soil"], answer: "A watering can" },
@@ -230,28 +266,12 @@ const allStories = [
     questions: story.questions.map(q => ({...q, type: 'mcq'}))
 }));
 
-// Text-to-Speech function
-const speak = (text) => {
-    window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'en-IN';
-    utterance.rate = 0.9;
-    utterance.pitch = 1.2;
-    const voices = window.speechSynthesis.getVoices();
-    let selectedVoice = voices.find(voice => voice.lang === 'en-IN');
-    if (!selectedVoice) { selectedVoice = voices.find(voice => voice.lang === 'en-GB'); }
-    if (!selectedVoice) { selectedVoice = voices.find(voice => voice.lang === 'en-US'); }
-    utterance.voice = selectedVoice;
-    window.speechSynthesis.speak(utterance);
-};
-
-
 // --- Main App Component ---
 export default function App() {
     // Game State Management
     const [gameState, setGameState] = useState('welcome');
     const [playerName, setPlayerName] = useState('');
-    const [tempName, setTempName] =useState('');
+    const [tempName, setTempName] = useState('');
     const [selectedStory, setSelectedStory] = useState(null);
     const [readingMode, setReadingMode] = useState('');
     const [currentParagraph, setCurrentParagraph] = useState(0);
@@ -260,22 +280,23 @@ export default function App() {
     const [feedback, setFeedback] = useState('');
     const [showContent, setShowContent] = useState(true);
 
-    // Audio state
+    // Audio State
     const [isMuted, setIsMuted] = useState(true);
+    const [isSpeaking, setIsSpeaking] = useState(false);
     const audioRef = useRef(null);
 
-    // FIX: Corrected and simplified audio handling logic.
+    // --- Audio & Speech Synthesis Functions ---
     const initAudio = () => {
         if (!audioRef.current) {
-            const audioSrc = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjQ1LjEwMAAAAAAAAAAAAAAA//tAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABodHRwczovL3d3dy5iZW5zb3VuZC5jb20AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7QMRAwAAAC2bQGAAWAAAEkoCADUeIOAAhgzgAIYMAITGAAgYMAAjSAAkERgBYgAAGDEACgwABEMAEhQAIhAYAWIAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAAAAAAAAAAA//tAwQkAMVSxRgAsAAACVgAANZ4h4ACBmACAwgAAhgGABgABgxAAGgAAEDkAGDIAGDIAGDkAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAG-";
+            const audioSrc = "data:audio/mp3;base64,SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU4LjQ1LjEwMAAAAAAAAAAAAAAA//tAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABodHRwczovL3d3dy5iZW5zb3VuZC5jb20AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP/7QMRAwAAAC2bQGAAWAAAEkoCADUeIOAAhgzgAIYMAITGAAgYMAAjSAAkERgBYgAAGDEACgwABEMAEhQAIhAYAWIAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAANIAAjSAAkERgBYgAAGDEACQwAEJgANQ5AAAAAAAAAAAA//tAwQkAMVSxRgAsAAACVgAANZ4h4ACBmACAwgAAhgGABgABgxAAGgAAEDkAGDIAGDIAGDkAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAGDIAG-";
             audioRef.current = new Audio(audioSrc);
             audioRef.current.loop = true;
-            audioRef.current.volume = 0.2;
+            audioRef.current.volume = 0.3;
         }
     };
 
     const toggleMute = () => {
-        initAudio(); // Ensure audio is initialized before toggling
+        initAudio();
         const newMutedState = !isMuted;
         setIsMuted(newMutedState);
 
@@ -283,11 +304,30 @@ export default function App() {
             if (newMutedState) {
                 audioRef.current.pause();
             } else {
-                audioRef.current.play().catch(error => {
-                    console.error("Background music failed to play:", error);
-                });
+                audioRef.current.play().catch(console.error);
             }
         }
+    };
+
+    const speak = (text) => {
+        stopSpeaking();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-IN';
+        utterance.rate = 0.9;
+        utterance.pitch = 1.1;
+        const voices = window.speechSynthesis.getVoices();
+        let selectedVoice = voices.find(voice => voice.lang === 'en-IN');
+        if (!selectedVoice) selectedVoice = voices.find(voice => voice.lang === 'en-GB');
+        if (!selectedVoice) selectedVoice = voices.find(voice => voice.lang === 'en-US');
+        utterance.voice = selectedVoice;
+        utterance.onstart = () => setIsSpeaking(true);
+        utterance.onend = () => setIsSpeaking(false);
+        window.speechSynthesis.speak(utterance);
+    };
+
+    const stopSpeaking = () => {
+        window.speechSynthesis.cancel();
+        setIsSpeaking(false);
     };
 
     const changeState = (newState) => {
@@ -299,7 +339,10 @@ export default function App() {
     };
 
     const handleInitialAction = () => {
-        initAudio(); // Initialize audio on first user interaction
+        initAudio();
+        if (!isMuted) {
+             audioRef.current.play().catch(console.error);
+        }
         changeState('name_prompt');
     }
 
@@ -312,21 +355,23 @@ export default function App() {
 
     useEffect(() => {
         if (readingMode === 'readToMe' && gameState === 'quiz' && selectedStory && !isMuted) {
-            const question = selectedStory.questions[currentQuestionIndex];
-            speak(question.question);
+            // Add a check to ensure selectedStory and its questions exist
+            if (selectedStory && selectedStory.questions && selectedStory.questions[currentQuestionIndex]) {
+                 speak(selectedStory.questions[currentQuestionIndex].question);
+            }
         }
     }, [currentQuestionIndex, gameState, readingMode, selectedStory, isMuted]);
 
     // Handlers for game logic
     const handleNameSubmit = (e) => { e.preventDefault(); if (tempName.trim()) { setPlayerName(tempName.trim()); changeState('story_selection'); } };
-    const handleStorySelect = (story) => { setSelectedStory(story); changeState('reading_choice'); };
+    const handleStorySelect = (story) => { stopSpeaking(); setSelectedStory(story); changeState('reading_choice'); };
     const handleReadingChoice = (mode) => { setReadingMode(mode); changeState('story_reading'); };
-    const handleNextParagraph = () => { if (currentParagraph < selectedStory.paragraphs.length - 1) { setCurrentParagraph(p => p + 1); } else { window.speechSynthesis.cancel(); changeState('quiz_intro'); } };
+    const handleNextParagraph = () => { if (selectedStory && currentParagraph < selectedStory.paragraphs.length - 1) { setCurrentParagraph(p => p + 1); } else { stopSpeaking(); changeState('quiz_intro'); } };
     const handleQuizStart = () => { changeState('quiz'); };
     
     const handleMcqSelect = (option) => {
         if (feedback) return;
-        window.speechSynthesis.cancel();
+        stopSpeaking();
         const currentQuestion = selectedStory.questions[currentQuestionIndex];
         const isCorrect = option.toLowerCase() === currentQuestion.answer.toLowerCase();
 
@@ -346,157 +391,199 @@ export default function App() {
     }
 
     const handlePlayAgain = () => {
-        window.speechSynthesis.cancel();
+        stopSpeaking();
         changeState('story_selection');
         setSelectedStory(null); setReadingMode(''); setCurrentParagraph(0);
         setCurrentQuestionIndex(0); setScore(0); setFeedback('');
     };
-    
-    // Component Renders
-    const WelcomeScreen = () => (
-      <div className="text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-yellow-300 drop-shadow-lg mb-4 animate-bounce">Hello!</h1>
-        <p className="text-xl md:text-2xl text-white mb-8">I'm <span className="font-bold text-yellow-300">Professor Quest</span>! 🚀</p>
-        <button onClick={handleInitialAction} className="btn-primary">Let's Go! <ArrowRight className="inline-block ml-2"/></button>
-      </div>
-    );
-    
-    const NamePrompt = () => (
-      <div className="text-center">
-        <h2 className="text-2xl md:text-3xl text-white mb-6">Hello! What is your name?</h2>
-        <form onSubmit={handleNameSubmit} className="flex flex-col items-center">
-            <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="input-primary" placeholder="Type your name here" autoFocus />
-            <button type="submit" className="btn-primary mt-4">That's Me! <User className="inline-block ml-2"/></button>
-        </form>
-      </div>
-    );
-    
-    const StorySelection = () => (
-      <div>
-        <h2 className="text-2xl md:text-3xl font-bold text-center text-white mb-6">Choose your adventure, <span className="text-yellow-300">{playerName}</span>! 👋</h2>
-        <ul className="space-y-3 max-h-[60vh] overflow-y-auto pr-2">
-            {allStories.map((story) => (
-                <li key={story.id}>
-                    <button onClick={() => handleStorySelect(story)} className="w-full text-left p-4 rounded-lg shadow-md transition-all duration-200 bg-blue-600 hover:bg-blue-500 hover:scale-105">
-                        <span className="font-bold text-lg"><BookOpen className="inline-block mr-3 mb-1" size={20}/>{story.title}</span>
-                    </button>
-                </li>
-            ))}
-        </ul>
-      </div>
-    );
 
-    const ReadingChoice = () => (
-      <div className="text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">Great choice!</h2>
-        <p className="text-xl text-yellow-300 font-semibold mb-6">"{selectedStory.title}"</p>
-        <p className="text-xl text-white mb-6">How should we enjoy this story?</p>
-        <div className="flex flex-col md:flex-row gap-4 justify-center">
-            <button onClick={() => handleReadingChoice('readToMe')} className="btn-secondary">Read it to me</button>
-            <button onClick={() => handleReadingChoice('readMyself')} className="btn-secondary">I'll read it myself</button>
-        </div>
-      </div>
-    );
-
-    const StoryReading = () => {
-        if (readingMode === 'readToMe') {
-            return (
-                <div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-center text-yellow-300 mb-6">{selectedStory.title}</h2>
-                    <p className="story-text">{selectedStory.paragraphs[currentParagraph]}</p>
-                    <button onClick={handleNextParagraph} className="btn-primary w-full mt-6">
-                        {currentParagraph < selectedStory.paragraphs.length - 1 ? "Next Part" : "Finish Story"} <ArrowRight className="inline-block ml-2"/>
-                    </button>
-                </div>
-            );
+    // --- Component Renders ---
+    const renderGameState = () => {
+        // FIX: Add a guard clause to prevent rendering if selectedStory is null, which causes crashes.
+        if ((gameState === 'reading_choice' || gameState === 'story_reading' || gameState === 'quiz_intro' || gameState === 'quiz' || gameState === 'final_score') && !selectedStory) {
+            return <div>Loading story...</div>; // Or return to selection
         }
-        return (
-            <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-center text-yellow-300 mb-4 flex items-center justify-center gap-3">
-                    {selectedStory.title} 
-                    <button onClick={() => speak(selectedStory.content)} className="p-1 bg-black bg-opacity-20 rounded-full hover:bg-opacity-40"><PlayCircle size={24}/></button>
-                </h2>
-                <div className="bg-black bg-opacity-20 p-4 rounded-lg max-h-80 overflow-y-auto"><p className="text-lg leading-relaxed">{selectedStory.content}</p></div>
-                <button onClick={() => {window.speechSynthesis.cancel(); changeState('quiz_intro')}} className="btn-primary w-full mt-4">I'm finished reading!</button>
-            </div>
-        );
-    };
 
-    const QuizIntro = () => (
-         <div className="text-center">
-            <h2 className="text-3xl font-bold text-yellow-300 mb-4 animate-pulse">Excellent Reading!</h2>
-            <p className="text-xl text-white mb-6">Let's play a quiz, {playerName}!</p>
-            <button onClick={handleQuizStart} className="btn-primary">Start Quiz!</button>
-        </div>
-    );
-
-    const Quiz = () => {
-        const question = selectedStory.questions[currentQuestionIndex];
-        return (
-            <div className="w-full">
-                <div className="text-center mb-4">
-                    <p className="text-lg font-semibold text-white">Question {currentQuestionIndex + 1} of {selectedStory.questions.length}</p>
-                    <p className="text-lg font-semibold text-yellow-300">Score: {score}</p>
-                </div>
-                <div className={`p-5 rounded-lg shadow-lg text-center transition-all duration-300 ${feedback === 'correct' ? 'bg-green-500 scale-105' : feedback === 'incorrect' ? 'bg-red-500 scale-105' : 'bg-blue-600'}`}>
-                   {feedback ? (
-                       <div className="text-white animate-jump-in">
-                           {feedback === 'correct' ? (
-                               <div className="flex flex-col items-center"><CheckCircle size={48} className="mb-3"/><p className="text-2xl font-bold">Correct!</p><p className="text-lg">Awesome job, {playerName}!</p></div>
-                           ) : (
-                               <div className="flex flex-col items-center"><XCircle size={48} className="mb-3"/><p className="text-2xl font-bold">Good try!</p><p className="text-lg">The answer was: <strong className="text-xl">"{question.answer}"</strong></p></div>
-                           )}
-                       </div>
-                   ) : (
+        switch (gameState) {
+            case 'welcome':
+                return (
+                    <div className="text-center">
+                        <h1 className="text-5xl md:text-6xl font-bold text-yellow-300 drop-shadow-lg mb-4 animate-bounce">Hello!</h1>
+                        <p className="text-2xl text-white mb-8">I'm <span className="font-bold text-yellow-300">Professor Quest</span>! 🚀</p>
+                        <button onClick={handleInitialAction} className="btn-primary text-2xl">Let's Go!</button>
+                    </div>
+                );
+            case 'name_prompt':
+                return (
+                    <div className="text-center">
+                        <h2 className="text-3xl text-white mb-6">Hello! What is your name?</h2>
+                        <form onSubmit={handleNameSubmit} className="flex flex-col items-center">
+                            <input type="text" value={tempName} onChange={(e) => setTempName(e.target.value)} className="input-primary" placeholder="Type your name here" autoFocus />
+                            <button type="submit" className="btn-primary mt-4">That's Me! <User /></button>
+                        </form>
+                    </div>
+                );
+            case 'story_selection':
+                return (
                     <div>
-                        <p className="text-xl md:text-2xl font-semibold mb-5 flex items-center justify-center gap-3">
-                            {question.question} 
-                            {(readingMode === 'readMyself' && !isMuted) && <button onClick={() => speak(question.question)} className="p-1 bg-black bg-opacity-20 rounded-full hover:bg-opacity-40"><PlayCircle size={20}/></button>}
-                        </p>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {question.options.map(option => (<button key={option} onClick={() => handleMcqSelect(option)} className="btn-secondary text-lg">{option}</button>))}
+                        <h2 className="text-3xl font-bold text-center text-white mb-6">Choose your adventure, <span className="text-yellow-300">{playerName}</span>!</h2>
+                        <ul className="space-y-3 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                            {allStories.map((story) => (
+                                <li key={story.id}>
+                                    <button onClick={() => handleStorySelect(story)} className="story-item-btn">
+                                        <div className="story-icon-container"><StoryIcon id={story.id} /></div>
+                                        <span className="font-bold text-lg">{story.title}</span>
+                                    </button>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                );
+            case 'reading_choice':
+                return (
+                    <div className="text-center">
+                        <h2 className="text-3xl font-bold text-white mb-2">Great choice!</h2>
+                        <p className="text-2xl text-yellow-300 font-semibold mb-6">"{selectedStory.title}"</p>
+                        <p className="text-xl text-white mb-6">How should we enjoy this story?</p>
+                        <div className="flex flex-col md:flex-row gap-4 justify-center">
+                            <button onClick={() => handleReadingChoice('readToMe')} className="btn-secondary">Read it to me</button>
+                            <button onClick={() => handleReadingChoice('readMyself')} className="btn-secondary">I'll read it myself</button>
                         </div>
                     </div>
-                   )}
-                </div>
-            </div>
-        );
-    };
-
-    const FinalScore = () => (
-         <div className="text-center">
-            <Award size={64} className="text-yellow-300 mx-auto mb-4 animate-bounce"/>
-            <h2 className="text-3xl font-bold text-white mb-4">Quiz Complete!</h2>
-            <p className="text-2xl bg-purple-800 text-white font-bold py-3 px-5 rounded-lg inline-block mb-6">You scored <span className="text-yellow-300 text-3xl">{score}</span> out of <span className="text-yellow-300 text-3xl">{selectedStory.questions.length}</span>!</p>
-            <p className="text-xl text-white mb-8">That's a fantastic score, {playerName}! 🎉</p>
-            <button onClick={handlePlayAgain} className="btn-primary"><RotateCw className="inline-block mr-2"/> Play a New Story</button>
-        </div>
-    );
-
-    const renderGameState = () => {
-        switch (gameState) {
-            case 'welcome': return <WelcomeScreen />;
-            case 'name_prompt': return <NamePrompt />;
-            case 'story_selection': return <StorySelection />;
-            case 'reading_choice': return <ReadingChoice />;
-            case 'story_reading': return <StoryReading />;
-            case 'quiz_intro': return <QuizIntro />;
-            case 'quiz': return <Quiz />;
-            case 'final_score': return <FinalScore />;
-            default: return <div>Loading...</div>;
+                );
+            case 'story_reading':
+                const totalParagraphs = selectedStory.paragraphs.length;
+                const progress = ((currentParagraph + 1) / totalParagraphs) * 100;
+                if (readingMode === 'readToMe') {
+                    return (
+                        <div>
+                             <div className="w-full bg-blue-900 rounded-full h-2.5 mb-4"><div className="bg-yellow-400 h-2.5 rounded-full" style={{ width: `${progress}%` }}></div></div>
+                            <h2 className="text-3xl font-bold text-center text-yellow-300 mb-6">{selectedStory.title}</h2>
+                            <p className="story-text">{selectedStory.paragraphs[currentParagraph]}</p>
+                            <button onClick={handleNextParagraph} className="btn-primary w-full mt-6">
+                                {currentParagraph < totalParagraphs - 1 ? "Next Part" : "Go to Quiz!"} <ArrowRight />
+                            </button>
+                        </div>
+                    );
+                }
+                return (
+                    <div>
+                        <h2 className="text-3xl font-bold text-center text-yellow-300 mb-4">{selectedStory.title}</h2>
+                        <div className="story-text-container">
+                            <p className="text-lg leading-relaxed">{selectedStory.content}</p>
+                        </div>
+                        <button onClick={() => { stopSpeaking(); changeState('quiz_intro'); }} className="btn-primary w-full mt-4">I'm finished reading!</button>
+                    </div>
+                );
+            case 'quiz_intro':
+                return (
+                     <div className="text-center">
+                        <h2 className="text-4xl font-bold text-yellow-300 mb-4 animate-pulse">Great Job!</h2>
+                        <p className="text-2xl text-white mb-6">Ready for the quiz, {playerName}?</p>
+                        <button onClick={handleQuizStart} className="btn-primary">Start Quiz!</button>
+                    </div>
+                );
+            case 'quiz':
+                const question = selectedStory.questions[currentQuestionIndex];
+                return (
+                    <div className="w-full">
+                         <div className="text-center mb-4">
+                            <p className="text-xl font-semibold text-white">Question {currentQuestionIndex + 1} of {selectedStory.questions.length}</p>
+                            <p className="text-xl font-semibold text-yellow-300">Score: {score}</p>
+                        </div>
+                        <div className={`p-6 rounded-2xl shadow-lg text-center transition-all duration-300 ${feedback === 'correct' ? 'bg-green-500 scale-105' : feedback === 'incorrect' ? 'bg-red-500 scale-105' : 'bg-blue-800 bg-opacity-70'}`}>
+                           {feedback ? (
+                               <div className="text-white animate-jump-in h-48 flex flex-col justify-center items-center">
+                                   {feedback === 'correct' ? (
+                                       <><CheckCircle /><p className="text-3xl font-bold mt-3">Correct!</p><p className="text-xl">Awesome job!</p></>
+                                   ) : (
+                                       <><XCircle /><p className="text-3xl font-bold mt-3">Good try!</p><p className="text-lg">The answer was: <strong className="text-xl">"{question.answer}"</strong></p></>
+                                   )}
+                               </div>
+                           ) : (
+                            <div className="h-48 flex flex-col justify-between">
+                                <p className="text-2xl font-semibold">{question.question}</p>
+                                <div className="grid grid-cols-1 gap-3">
+                                    {question.options.map(option => (<button key={option} onClick={() => handleMcqSelect(option)} className="btn-quiz">{option}</button>))}
+                                </div>
+                            </div>
+                           )}
+                        </div>
+                    </div>
+                );
+            case 'final_score':
+                 return (
+                    <div className="text-center">
+                        <Award className="text-yellow-300 mx-auto mb-4 animate-bounce"/>
+                        <h2 className="text-4xl font-bold text-white mb-4">Quiz Complete!</h2>
+                        <p className="text-2xl bg-purple-800 text-white font-bold py-3 px-5 rounded-lg inline-block mb-6">Your Score: <span className="text-yellow-300 text-3xl">{score} / {selectedStory.questions.length}</span></p>
+                        <p className="text-xl text-white mb-8">You are a star reader, {playerName}! 🎉</p>
+                        <button onClick={handlePlayAgain} className="btn-primary"><RotateCw /> Play a New Story</button>
+                    </div>
+                );
+            default:
+                return <div>Loading...</div>;
         }
     };
-
+    
+    // --- Main JSX Render ---
     return (
-        <div className="min-h-screen bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 text-white font-sans flex flex-col items-center justify-center p-4 selection:bg-yellow-400 selection:text-purple-900">
-             <button onClick={toggleMute} className="absolute top-4 right-4 p-2 bg-black bg-opacity-30 rounded-full hover:bg-opacity-50 transition-all z-10">
+        <div className="app-container">
+            <style>
+                {`
+                    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&display=swap');
+                    .app-container {
+                        min-height: 100vh;
+                        padding: 1rem;
+                        display: flex;
+                        flex-direction: column;
+                        align-items: center;
+                        justify-content: center;
+                        font-family: 'Nunito', sans-serif;
+                        color: white;
+                        background-color: #4a76d8;
+                        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100%' height='100%' viewBox='0 0 1600 800'%3E%3Cg %3E%3Cpolygon fill='%235182e1' points='1600 160 0 460 0 350 1600 50'/%3E%3Cpolygon fill='%23588ee9' points='1600 260 0 560 0 450 1600 150'/%3E%3Cpolygon fill='%235f99f2' points='1600 360 0 660 0 550 1600 250'/%3E%3Cpolygon fill='%2366a5fa' points='1600 460 0 760 0 650 1600 350'/%3E%3Cpolygon fill='%236DB0FF' points='1600 800 0 800 0 750 1600 450'/%3E%3C/g%3E%3C/svg%3E");
+                        background-attachment: fixed;
+                        background-size: cover;
+                    }
+                    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+                    .custom-scrollbar::-webkit-scrollbar-track { background: #1e3a8a; border-radius: 10px; }
+                    .custom-scrollbar::-webkit-scrollbar-thumb { background: #60a5fa; border-radius: 10px; }
+                    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #93c5fd; }
+                    .btn-primary { display: inline-flex; align-items: center; gap: 0.5rem; padding: 12px 28px; background-color: #f59e0b; color: #4c1d95; font-size: 1.2rem; font-weight: bold; border-radius: 9999px; border: none; border-bottom: 5px solid #b45309; transition: all 0.15s ease-out; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+                    .btn-primary:hover, .btn-primary:focus { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.25); background-color: #fbbf24; }
+                    .btn-primary:active { transform: translateY(1px); box-shadow: 0 2px 5px rgba(0,0,0,0.2); border-bottom-width: 2px; }
+                    .btn-secondary { padding: 12px 24px; background: linear-gradient(145deg, #3b82f6, #60a5fa); color: white; font-size: 1.1rem; font-weight: bold; border-radius: 12px; border: none; border-bottom: 4px solid #1d4ed8; transition: all 0.15s ease; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+                    .btn-secondary:hover, .btn-secondary:focus { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.25); }
+                    .btn-quiz { width: 100%; text-align: left; padding: 12px 20px; background-color: rgba(255,255,255,0.1); color: white; font-size: 1rem; font-weight: bold; border-radius: 12px; border: 2px solid rgba(255,255,255,0.3); transition: all 0.15s ease; }
+                    .btn-quiz:hover, .btn-quiz:focus { background-color: rgba(255,255,255,0.2); border-color: white; transform: scale(1.03); }
+                    .input-primary { padding: 12px; border-radius: 12px; border: none; background-color: rgba(0,0,0,0.2); color: white; font-size: 1.1rem; text-align: center; width: 80%; max-width: 300px; transition: all 0.3s; }
+                    .input-primary::placeholder { color: rgba(255,255,255,0.5); }
+                    .input-primary:focus { outline: none; box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.5); background-color: rgba(0,0,0,0.3); }
+                    .story-text-container { background-color: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0.75rem; max-h: 60vh; overflow-y: auto; }
+                    .story-text { font-size: 1.25rem; line-height: 1.7; background-color: rgba(0,0,0,0.2); padding: 1rem; border-radius: 0.75rem; }
+                    .story-item-btn { width: 100%; display: flex; align-items: center; gap: 1rem; padding: 0.75rem; border-radius: 1rem; background-color: rgba(0,0,0,0.2); border: 2px solid rgba(255,255,255,0.1); transition: all 0.2s ease; }
+                    .story-item-btn:hover { background-color: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.4); transform: scale(1.03); }
+                    .story-icon-container { padding: 0.5rem; background-color: rgba(255,255,255,0.1); border-radius: 0.75rem; }
+                    @keyframes jump-in { 0% { transform: scale(0.5); opacity: 0; } 80% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(1); } }
+                    .animate-jump-in { animation: jump-in 0.5s ease-out forwards; }
+                `}
+            </style>
+
+            <button onClick={toggleMute} className="absolute top-4 right-4 p-3 bg-black bg-opacity-30 rounded-full hover:bg-opacity-50 transition-all z-10">
                 {isMuted ? <VolumeX /> : <Volume2 />}
             </button>
-            <div className={`w-full max-w-2xl mx-auto p-6 bg-black bg-opacity-40 rounded-2xl shadow-2xl border-2 border-white border-opacity-20 transition-opacity duration-400 ${showContent ? 'opacity-100' : 'opacity-0'}`}>
+            {isSpeaking && (
+                <button onClick={stopSpeaking} className="absolute top-4 left-4 p-3 bg-red-600 text-white rounded-full hover:bg-red-700 transition-all z-10 flex items-center gap-2">
+                    <StopCircle /> <span className="hidden md:inline">Stop Reading</span>
+                </button>
+            )}
+
+            <div className={`w-full max-w-2xl mx-auto p-6 bg-black bg-opacity-30 rounded-3xl shadow-2xl border-2 border-white border-opacity-20 backdrop-blur-sm transition-all duration-400 ${showContent ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
                 {renderGameState()}
             </div>
              <footer className="text-center text-white text-opacity-70 mt-6 text-sm">
-                <p>Professor Quest's Reading Adventure</p>
+                Professor Quest's Reading Adventure
             </footer>
         </div>
     );
